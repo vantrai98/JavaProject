@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:padding="10dp"
+    android:orientation="horizontal"
+    android:descendantFocusability="blocksDescendants">
+
+    <ImageView
+        android:id="@+id/im_directory_thumb"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:focusable="false"></ImageView>
+    <TextView
+        android:id="@+id/tv_directory_item_name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginLeft="20dp"
+        android:focusable="false">
+
+    </TextView>
+</LinearLayout>

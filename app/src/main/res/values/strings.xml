@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">vMusic</string>
+    <string name="title">vMusic</string>
+    <string name="device">Thiết bị</string>
+    <string name="online">Trực tuyến</string>
+    <string name="rate_app">Đánh giá app</string>
+    <string name="about">Về chúng tôi</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="favorites">Yêu thích</string>
+    <string name="about_text">vMusic là ứng dụng nghẹ nhạc dùng cho Android. Với vMusic bạn có thể truy cập và nghe các bạn nhạc yêu thích có trên máy và các bài hát online thông qua Youtube.
+    </string>
+    <string name="ok">Đồng ý</string>
+    <string name="start_time">0.00</string>
+    <string name="final_time">0.00</string>
+    <string name="search_hint">Tên bài hát</string>
+    <string name="no">Không</string>
+    <string name="yes">Có</string>
+    <string name="delete">Xóa</string>
+    <string name="delete_text">Bạn muốn xóa?</string>
+    <string name="play_next">Bài hát tiếp theo</string>
+    <string name="repeat_all">Phát lại toàn bộ</string>
+    <string name="repeat_one">Phát lại bài hát này</string>
+    <string name="no_repeat">Không phát lại</string>
+    <string name="shuffle">Phát ngẫu nhiên</string>
+    <string name="no_shuffle">Phát tuần tự</string>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_device"
+            android:icon="@drawable/folder_icon"
+            android:title="@string/device" />
+        <item
+            android:id="@+id/nav_online"
+            android:icon="@drawable/globe_icon"
+            android:title="@string/favorites" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/about_icon"
+            android:title="@string/about" />
+    </group>
+</menu>
