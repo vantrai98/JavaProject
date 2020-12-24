@@ -207,7 +207,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         setCurrSong(currSong, true);
                         break;
                     case Constant.REPEAT_ALL:
-                        setCurrSong(getRandomSong(), true);
+                        SongModel f = getRandomSong();
+                        if(f!=null){
+                            setCurrSong(f, true);
+                        }
+                        else{
+                            setCurrSong(currSong, false);
+                        }
                         break;
                 }
             }
@@ -633,6 +639,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int newIndex = random.nextInt(songs.size());
             return songs.get(newIndex);
         }
+        Toast.makeText(this,"Danh sách phát trống.",Toast.LENGTH_SHORT).show();
         return null;
     }
 
@@ -647,6 +654,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return songs.get(0);
             }
         }
+        Toast.makeText(this,"Danh sách phát trống.",Toast.LENGTH_SHORT).show();
         return null;
     }
 
@@ -661,7 +669,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return songs.get(songs.size() - 1);
             }
         }
-        Toast.makeText()
+        Toast.makeText(this,"Danh sách phát trống.",Toast.LENGTH_SHORT).show();
         return null;
     }
 

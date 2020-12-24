@@ -67,7 +67,6 @@ public class SongAdapter extends BaseAdapter {
 
         ((ImageView)songView.findViewById(R.id.iv_song_thumb)).setImageResource(R.drawable.music_icon);
         ((TextView)songView.findViewById(R.id.tv_song_title)).setText(song.getTitle());
-        ((TextView)songView.findViewById(R.id.tv_song_subtitle)).setText(song.getSubTitle());
 
         return songView;
     }

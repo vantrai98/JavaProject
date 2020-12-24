@@ -7,9 +7,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 public class Helper {
-    private static final ArrayList<String> MusicExtensions = new ArrayList<String>(Arrays.asList(".mp3", ".wma", ".wav", ".3gp", ".m4a"));
+    private static final ArrayList<String> MusicExtensions = new ArrayList<String>(Arrays.asList(".*\\.mp3$", ".*\\.wma$", ".*\\.wav$", ".*\\.3gp$", ".*\\.m4a$"));
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private static void SortFileByName(ArrayList<File> files) {
@@ -40,8 +42,13 @@ public class Helper {
         ArrayList<File> musics = new ArrayList<>();
         for (File f : files) {
             if (f.isFile()) {
-                String ex = f.getPath().substring(f.getPath().lastIndexOf("."));
-                if (MusicExtensions.contains(ex)) musics.add(f);
+                String path = f.getAbsolutePath();
+                for (String rex : MusicExtensions) {
+                    if (Pattern.matches(rex, path)) {
+                        musics.add(f);
+                        break;
+                    }
+                }
             }
         }
         SortFileByName(musics);
@@ -57,8 +64,13 @@ public class Helper {
             for (File f : files) {
                 if (f.isDirectory()) folders.add(f);
                 else if (f.isFile()) {
-                    String ex = f.getPath().substring(f.getPath().lastIndexOf("."));
-                    if (MusicExtensions.contains(ex)) musics.add(f);
+                    String path = f.getAbsolutePath();
+                    for (String rex : MusicExtensions) {
+                        if (Pattern.matches(rex, path)) {
+                            musics.add(f);
+                            break;
+                        }
+                    }
                 }
             }
             SortFileByName(folders);
