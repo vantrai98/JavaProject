@@ -47,7 +47,7 @@ public class DirectoryAdapter extends BaseAdapter {
 
         File file = files.get(i);
         if(file.isDirectory()){
-            ((ImageView)fileView.findViewById(R.id.im_directory_thumb)).setImageResource(R.drawable.folder_icon);
+            ((ImageView)fileView.findViewById(R.id.im_directory_thumb)).setImageResource(R.drawable.folder_regular_blue_icon);
         }
         else {
             ((ImageView)fileView.findViewById(R.id.im_directory_thumb)).setImageResource(R.drawable.music_icon);

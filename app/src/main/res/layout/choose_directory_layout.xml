@@ -4,26 +4,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/choose_directory_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal">
-        <TextView
-            android:id="@+id/tv_directory_name"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:textSize="20dp"
-            android:padding="10dp"
-            android:textStyle="bold">Tên folder</TextView>
-        <Button
-            android:id="@+id/btn_choose_directory"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Chọn"></Button>
-
-    </LinearLayout>
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/AppTheme.Toolbar" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,6 +20,7 @@
             android:id="@+id/lv_directory_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:dividerHeight="0dp"></ListView>
+            android:dividerHeight="0dp"
+            android:drawSelectorOnTop="true"></ListView>
     </LinearLayout>
 </LinearLayout>

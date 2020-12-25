@@ -4,11 +4,11 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_device"
-            android:icon="@drawable/folder_icon"
+            android:icon="@drawable/folder_filled_white_icon"
             android:title="@string/device" />
         <item
             android:id="@+id/nav_online"
-            android:icon="@drawable/globe_icon"
+            android:icon="@drawable/ic_favorite_filled"
             android:title="@string/favorites" />
         <item
             android:id="@+id/nav_about"

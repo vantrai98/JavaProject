@@ -9,9 +9,8 @@
         app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always" />
     <item
-        android:id="@+id/menu_option"
-        android:icon="@drawable/more_icon"
-        android:title="@string/favorites"
+        android:id="@+id/menu_folder"
+        android:title="Thư mục"
+        android:icon="@drawable/folder_filled_white_icon"
         app:showAsAction="ifRoom" />
-
 </menu>

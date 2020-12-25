@@ -1,6 +1,7 @@
 package com.example.soc_macmini_15.musicplayer.Activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -26,13 +28,17 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SeekBar;
@@ -57,9 +63,6 @@ import java.util.function.Consumer;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static boolean firstOpen = true;
-
-    private Menu menu;
-
     private boolean playNow;
 
     private ImageButton imgBtnPlayPause, imgbtnShuffle, imgBtnPrev, imgBtnNext, imgBtnRepeat;
@@ -88,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     MediaPlayer mediaPlayer;
     Handler handler;
     Runnable runnable;
+    Context context;
 
     private AppReceiver appReceiver = null;
 
@@ -108,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         grantedPermission();
     }
 
+
     /**
      * Khởi tạo các view
      */
@@ -119,10 +124,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgbtnShuffle = findViewById(R.id.img_btn_shuffle);
         imgBtnRepeat = findViewById(R.id.img_btn_repeat);
         lvListSong = findViewById(R.id.lv_list_song);
+        registerForContextMenu(lvListSong);
         lvListSong.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 setCurrSong(songs.get(i), true);
+            }
+        });
+        lvListSong.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.d("long click", songs.get(i).getPath());
+                //openContextMenu(view);
+                return true;
             }
         });
         tvCurrentTime = findViewById(R.id.tv_current_time);
@@ -131,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         NavigationView navigationView = findViewById(R.id.nav_view);
         mDrawerLayout = findViewById(R.id.drawer_layout);
         imgBtnPlayPause = findViewById(R.id.img_btn_play);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.mainToolbar);
 
         toolbar.setTitleTextColor(getResources().getColor(R.color.text_color));
         setSupportActionBar(toolbar);
@@ -193,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         pref = getApplicationContext().getSharedPreferences(Constant.APP_PREF, 0);
-
+        context = this;
         handler = new Handler();
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -208,10 +222,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         break;
                     case Constant.REPEAT_ALL:
                         SongModel f = getRandomSong();
-                        if(f!=null){
+                        if (f != null) {
                             setCurrSong(f, true);
-                        }
-                        else{
+                        } else {
                             setCurrSong(currSong, false);
                         }
                         break;
@@ -542,8 +555,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        this.menu = menu;
-        getMenuInflater().inflate(R.menu.action_bar_menu, menu);
+        getMenuInflater().inflate(R.menu.main_action_bar_menu, menu);
         SearchManager manager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
         searchView.setSearchableInfo(manager.getSearchableInfo(getComponentName()));
@@ -577,11 +589,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.menu_search:
                 Toast.makeText(this, "Search", Toast.LENGTH_SHORT).show();
                 return true;
-            case R.id.menu_option:
+            case R.id.menu_folder:
                 browseAndSelectFolder();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getMenuInflater().inflate(R.menu.song_menu, menu);
     }
 
     private void browseAndSelectFolder() {
@@ -639,7 +657,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int newIndex = random.nextInt(songs.size());
             return songs.get(newIndex);
         }
-        Toast.makeText(this,"Danh sách phát trống.",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Danh sách phát trống.", Toast.LENGTH_SHORT).show();
         return null;
     }
 
@@ -654,7 +672,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return songs.get(0);
             }
         }
-        Toast.makeText(this,"Danh sách phát trống.",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Danh sách phát trống.", Toast.LENGTH_SHORT).show();
         return null;
     }
 
@@ -669,7 +687,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return songs.get(songs.size() - 1);
             }
         }
-        Toast.makeText(this,"Danh sách phát trống.",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Danh sách phát trống.", Toast.LENGTH_SHORT).show();
         return null;
     }
 
