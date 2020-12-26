@@ -7,7 +7,7 @@
             android:icon="@drawable/folder_filled_white_icon"
             android:title="@string/device" />
         <item
-            android:id="@+id/nav_online"
+            android:id="@+id/nav_favorite"
             android:icon="@drawable/ic_favorite_filled"
             android:title="@string/favorites" />
         <item

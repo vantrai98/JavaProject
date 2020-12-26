@@ -15,12 +15,23 @@
     <string name="search_hint">Tên bài hát</string>
     <string name="no">Không</string>
     <string name="yes">Có</string>
-    <string name="delete">Xóa</string>
-    <string name="delete_text">Bạn muốn xóa?</string>
     <string name="play_next">Bài hát tiếp theo</string>
     <string name="repeat_all">Phát lại toàn bộ</string>
     <string name="repeat_one">Phát lại bài hát này</string>
     <string name="no_repeat">Không phát lại</string>
     <string name="shuffle">Phát ngẫu nhiên</string>
     <string name="no_shuffle">Phát tuần tự</string>
+    <string name="phone_external_SD">Bộ nhớ điện thoại</string>
+    <string name="removeble_external_SD">Thẻ SDCard</string>
+    <string name="select_song">Chọn bài hát ...</string>
+    <string name="empty_playlist">Danh sách phát trống</string>
+    <string name="added_favorite_list">Đã thêm vào mục yêu thích</string>
+    <string name="removed_favorite_list">Đã xóa khỏi mục yêu thích</string>
+    <string name="provide_storage_accesss_permission">Cấp quyền truy cập bộ nhớ</string>
+    <string name="permission_granted">Quyền đã được cấp</string>
+    <string name="removed_device_list">Đã xóa bài hát khỏi thiết bị</string>
+    <string name="remove_failed">Không thể xóa bài hát khỏi thiết bị</string>
+    <string name="confirm">Xác nhận</string>
+    <string name="removed_device_list_message">Bạn muốn xóa bài hát này?</string>
+    <string name="storage">Lưu trữ</string>
 </resources>

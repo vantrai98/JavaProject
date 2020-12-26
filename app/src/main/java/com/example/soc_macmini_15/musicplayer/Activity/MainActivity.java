@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.SearchManager;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private File rootFolder;
     private File sdRoot;
+    private int listMode;
 
     SharedPreferences pref;
 
@@ -105,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (firstOpen) {
             initCurFolder();
             initCurSong();
+            initListMode();
             firstOpen = false;
         }
         initRepeatMode();
@@ -129,14 +133,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 setCurrSong(songs.get(i), true);
-            }
-        });
-        lvListSong.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.d("long click", songs.get(i).getPath());
-                //openContextMenu(view);
-                return true;
             }
         });
         tvCurrentTime = findViewById(R.id.tv_current_time);
@@ -168,10 +164,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mDrawerLayout.closeDrawers();
                 switch (item.getItemId()) {
                     case R.id.nav_device:
-                        listMusicFromFolder();
+                        setListMode(Constant.DEVICE);
                         break;
-                    case R.id.nav_online:
-                        listMusicFromFavoriteList();
+                    case R.id.nav_favorite:
+                        setListMode(Constant.FAVORITE);
                         break;
                     case R.id.nav_about:
                         about();
@@ -242,8 +238,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        database = Room.databaseBuilder(this, AppDatabase.class, Constant.DATABASE_NAME).build();
+
         rootFolder = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
-        Uri uri = Uri.parse("sdcard/");
+        Uri uri = Uri.parse("sdcard1/");
         sdRoot = new File(uri.getPath());
         songAdapter = new SongAdapter();
         repeatMode = Constant.NO_REPEAT;
@@ -268,6 +266,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
+    private void initListMode() {
+        int listMode = pref.getInt(Constant.LIST_MODE, 1);
+        setListMode(listMode);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void setListMode(int listMode) {
+        this.listMode = listMode;
+        pref.edit().putInt(Constant.LIST_MODE, this.listMode).commit();
+        setTitle();
+        if (this.listMode == Constant.FAVORITE) {
+            listSong();
+        } else if (this.listMode == Constant.DEVICE) {
+            setCurFolder(curFolder);
+        }
+    }
+
+    private void setTitle() {
+        if (this.listMode == Constant.FAVORITE) {
+            setTitle(R.string.favorites);
+        } else if (this.listMode == Constant.DEVICE) {
+            if (curFolder.getAbsolutePath().compareTo(rootFolder.getAbsolutePath()) == 0)
+                setTitle(R.string.phone_external_SD);
+            else if (curFolder.getAbsolutePath().compareTo(sdRoot.getAbsolutePath()) == 0)
+                setTitle(R.string.removeble_external_SD);
+            else setTitle(curFolder.getName());
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void listSong() {
+        switch (this.listMode) {
+            case Constant.DEVICE:
+                listMusicFromFolder();
+                break;
+            case Constant.FAVORITE:
+                listMusicFromFavoriteList();
+                break;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void initCurFolder() {
         String curFolderPath = pref.getString(Constant.CURRENT_FOLDER_PATH, null);
         File file = new File(curFolderPath);
@@ -282,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (curMusicPath != null) {
             try {
                 File file = new File(curMusicPath);
-                setCurrSong(new SongModel(file.getName(), "", file.getAbsolutePath()), false);
+                setCurrSong(new SongModel(file.getName(), file.getAbsolutePath(), false), false);
             } catch (Exception ex) {
 
             }
@@ -360,21 +400,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Tương tác database để lấy dữ kiệu bài hát yêu thích
      */
 
-    private void saveFavoriteSong(final FavoriteSong song) {
+    private void addFavoriteSong(final FavoriteSong song) {
         final Activity activity = this;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 FavoriteSong old = database.FavoriteSongDAO().getFavoriteSongByPath(song.path);
-                if (old != null) {
-                    Toast.makeText(activity, "Bài hát này đã được thêm vào danh sách yêu thích.", Toast.LENGTH_SHORT).show();
-                } else {
+                if (old == null) {
                     database.FavoriteSongDAO().insert(song);
                 }
             }
-        });
+        }).start();
+        Toast.makeText(activity, R.string.added_favorite_list, Toast.LENGTH_SHORT).show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void removeFavoriteSong(final FavoriteSong song) {
         final Activity activity = this;
         new Thread(new Runnable() {
@@ -383,21 +423,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 FavoriteSong old = database.FavoriteSongDAO().getFavoriteSongByPath(song.path);
                 if (old != null) {
                     database.FavoriteSongDAO().delete(old);
-                } else {
-                    Toast.makeText(activity, "Bài hát không có trong danh mục yêu thích", Toast.LENGTH_SHORT).show();
                 }
             }
-        });
+        }).start();
+        Toast.makeText(activity, R.string.removed_favorite_list, Toast.LENGTH_SHORT).show();
+        listSong();
     }
 
     private List<FavoriteSong> getFavoriteList() {
         final List<FavoriteSong> favoriteSongs = new ArrayList<>();
-        new Thread(new Runnable() {
+        Runnable runnable = new Runnable() {
+
             @Override
             public void run() {
-                favoriteSongs.addAll(0, database.FavoriteSongDAO().getAll());
+                favoriteSongs.addAll(database.FavoriteSongDAO().getAll());
             }
-        });
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
+        try {
+            thread.join();
+            return favoriteSongs;
+        } catch (Exception ex) {
+
+        }
         return favoriteSongs;
     }
 
@@ -417,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 if (ContextCompat.checkSelfPermission(MainActivity.this,
                         Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    Snackbar snackbar = Snackbar.make(mDrawerLayout, "Provide the Storage Permission", Snackbar.LENGTH_LONG);
+                    Snackbar snackbar = Snackbar.make(mDrawerLayout, R.string.provide_storage_accesss_permission, Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
             }
@@ -434,13 +483,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (ContextCompat.checkSelfPermission(MainActivity.this,
                             Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, R.string.permission_granted, Toast.LENGTH_SHORT).show();
                     } else {
                         Snackbar snackbar = Snackbar.make(mDrawerLayout, "Provide the Storage Permission", Snackbar.LENGTH_LONG);
                         snackbar.show();
                         finish();
                     }
                 }
+                break;
         }
     }
 
@@ -465,6 +515,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
             }
+            break;
         }
     }
 
@@ -487,11 +538,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setCurFolder(File f) {
         curFolder = f;
         saveCurFolder();
-        if (curFolder.getAbsolutePath().compareTo(rootFolder.getAbsolutePath()) == 0)
-            setTitle("Bộ nhớ điện thoại");
-        else if (curFolder.getAbsolutePath().compareTo(sdRoot.getAbsolutePath()) == 0)
-            setTitle("Thẻ SDCard");
-        else setTitle(curFolder.getName());
+        setTitle();
         listMusicFromFolder();
     }
 
@@ -500,7 +547,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final ArrayList<SongModel> songs = new ArrayList<>();
         for (int i = 0; i < favoriteSongs.size(); i++) {
             File file = new File(favoriteSongs.get(i).path);
-            songs.add(new SongModel(file.getName(), "", file.getAbsolutePath()));
+            songs.add(new SongModel(file.getName(), file.getAbsolutePath(), true));
         }
         setSongs(songs);
     }
@@ -512,7 +559,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         songs.forEach(new Consumer<File>() {
             @Override
             public void accept(File file) {
-                songModels.add(new SongModel(file.getName(), "", file.getAbsolutePath()));
+                songModels.add(new SongModel(file.getName(), file.getAbsolutePath(), false));
             }
         });
         setSongs(songModels);
@@ -537,13 +584,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Function to show the dialog for about us.
+     * Hiển thị thông tin ứng dụng nghe nhạc
      */
     private void about() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.about))
                 .setMessage(getString(R.string.about_text))
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -586,9 +633,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case android.R.id.home:
                 mDrawerLayout.openDrawer(Gravity.START);
                 return true;
-            case R.id.menu_search:
-                Toast.makeText(this, "Search", Toast.LENGTH_SHORT).show();
-                return true;
             case R.id.menu_folder:
                 browseAndSelectFolder();
                 return true;
@@ -599,7 +643,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.song_menu, menu);
+        MenuInflater menuInflater = getMenuInflater();
+        if (this.listMode == Constant.DEVICE) {
+            menuInflater.inflate(R.menu.device_song_menu, menu);
+        } else if (this.listMode == Constant.FAVORITE) {
+            menuInflater.inflate(R.menu.favorite_song_menu, menu);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void deleteMusic(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            file.delete();
+            Toast.makeText(this, R.string.removed_device_list, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, R.string.remove_failed, Toast.LENGTH_SHORT).show();
+        }
+        listSong();
+    }
+
+    private void onDeleteMusic(final String path) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.confirm)
+                .setMessage(R.string.removed_device_list_message)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        deleteMusic(path);
+                    }
+                })
+                .setNegativeButton(R.string.no, null)
+                .show();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        SongModel songModel = songs.get(info.position);
+        switch (item.getItemId()) {
+            case R.id.menu_add_favorite:
+                addFavoriteSong(new FavoriteSong(songModel.getPath()));
+                break;
+            case R.id.menu_remove_favorite:
+                removeFavoriteSong(new FavoriteSong(songModel.getPath()));
+                break;
+            case R.id.menu_delete_song:
+                onDeleteMusic(songModel.getPath());
+                break;
+        }
+        return super.onContextItemSelected(item);
     }
 
     private void browseAndSelectFolder() {
@@ -629,7 +724,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.img_btn_play:
                 if (currSong == null) {
-                    Toast.makeText(this, "Chọn bài hát ...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.select_song, Toast.LENGTH_SHORT).show();
                 } else if (mediaPlayer.isPlaying()) {
                     pauseMusic();
                 } else {
@@ -657,7 +752,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int newIndex = random.nextInt(songs.size());
             return songs.get(newIndex);
         }
-        Toast.makeText(this, "Danh sách phát trống.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.empty_playlist, Toast.LENGTH_SHORT).show();
         return null;
     }
 
@@ -672,7 +767,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return songs.get(0);
             }
         }
-        Toast.makeText(this, "Danh sách phát trống.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.empty_playlist, Toast.LENGTH_SHORT).show();
         return null;
     }
 
@@ -687,7 +782,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return songs.get(songs.size() - 1);
             }
         }
-        Toast.makeText(this, "Danh sách phát trống.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.empty_playlist, Toast.LENGTH_SHORT).show();
         return null;
     }
 

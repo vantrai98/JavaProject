@@ -8,8 +8,8 @@
         android:title="Thêm vào yêu thích"/>
 
     <item
-        android:id="@+id/menu_remove_favorite"
+        android:id="@+id/menu_delete_song"
         android:icon="@drawable/more_icon"
-        android:title="Xóa khỏi yêu thích"/>
+        android:title="Xóa khỏi thiết bị"/>
 
 </menu>

@@ -79,7 +79,7 @@ public class ChooseDirectoryActivity extends AppCompatActivity {
         });
         fileList = new ArrayList<>();
         root = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
-        Uri uri = Uri.parse("/sdcard");
+        Uri uri = Uri.parse("/sdcard1");
         sdRoot = new File(uri.getPath());
         String _curFolderPath = getIntent().getExtras().getString(Constant.CURRENT_FOLDER_PATH);
         setCurrentFolder(new File(_curFolderPath));
@@ -117,9 +117,9 @@ public class ChooseDirectoryActivity extends AppCompatActivity {
         curFolder = f;
         if (curFolder.exists()) {
             if (curFolder.getAbsolutePath().compareTo(root.getAbsolutePath()) == 0)
-                actionBar.setTitle("Bộ nhớ điện thoại");
+                actionBar.setTitle(R.string.phone_external_SD);
             else if (curFolder.getAbsolutePath().compareTo(sdRoot.getAbsolutePath()) == 0)
-                actionBar.setTitle("Thẻ SDCard");
+                actionBar.setTitle(R.string.removeble_external_SD);
             else actionBar.setTitle(curFolder.getName());
             listDir();
         } else {
@@ -128,7 +128,7 @@ public class ChooseDirectoryActivity extends AppCompatActivity {
                 fileList.add(root);
             if (sdRoot.exists())
                 fileList.add(sdRoot);
-            actionBar.setTitle("Lưu trữ");
+            actionBar.setTitle(R.string.storage);
             setListView();
         }
     }

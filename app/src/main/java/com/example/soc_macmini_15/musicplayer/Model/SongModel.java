@@ -3,33 +3,28 @@ package com.example.soc_macmini_15.musicplayer.Model;
 public class SongModel {
 
     private String title;
-    private String subTitle;
     private String path;
+    private boolean isFavorite;
 
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public SongModel(String title, String subTitle, String path) {
+    public SongModel(String title, String path, boolean isFavorite) {
         this.title = title;
-        this.subTitle = subTitle;
         this.path = path;
+        this.isFavorite = isFavorite;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public String getPath() {
+        return path;
     }
 
-    public String getSubTitle() {
-        return subTitle;
+    public boolean isFavorite() {
+        return isFavorite;
     }
 
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
+    }
 }

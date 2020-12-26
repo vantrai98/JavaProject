@@ -15,4 +15,8 @@ public class Constant {
     public static final String ACL_DISCONNECTED = "android.bluetooth.device.action.ACL_DISCONNECTED";
     public static final String BLUETOOTH_CONNECTED = "BLUETOOTH_CONNECTED";
     public static final String BLUETOOTH_DISCONNECTED = "BLUETOOTH_DISCONNECTED";
+    public static final String LIST_MODE = "LIST_MODE";
+    public static final int DEVICE = 1;
+    public static final int FAVORITE = 2;
+    public static final String DATABASE_NAME = "mydatabase";
 }
