@@ -408,6 +408,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String filePath = data.getStringExtra(Constant.BROWSE_AND_SELECT_FOLDER_DATA);
                     File f = new File(filePath);
                     if (f.exists()) {
+                        setListMode(Constant.DEVICE);
                         if (f.isDirectory()) {
                             setCurFolder(f);
                         } else {
