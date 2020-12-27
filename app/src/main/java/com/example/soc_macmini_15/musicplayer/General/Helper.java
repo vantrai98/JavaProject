@@ -41,36 +41,45 @@ public class Helper {
             files = file.listFiles();
         ArrayList<File> musics = new ArrayList<>();
         for (File f : files) {
-            if (f.isFile()) {
-                String path = f.getAbsolutePath();
-                for (String rex : MusicExtensions) {
-                    if (Pattern.matches(rex, path)) {
-                        musics.add(f);
-                        break;
-                    }
-                }
+            if (isMusic(f)) {
+                musics.add(f);
             }
         }
         SortFileByName(musics);
         return musics;
     }
 
+    public static boolean isMusic(File music) {
+        if (music != null && music.isFile()) {
+            String path = music.getAbsolutePath();
+            for (String rex : MusicExtensions) {
+                if (Pattern.matches(rex, path)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean haveFolderOrMusic(File f) {
+        if (f != null && f.listFiles() != null) {
+            for (File file : f.listFiles()) {
+                if (file.isDirectory() || isMusic(file)) return true;
+            }
+        }
+        return false;
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public static ArrayList<File> ListFolderAndMusic(File file) {
-        if(file.exists()) {
+        if (file.exists()) {
             File[] files = file.listFiles();
             ArrayList<File> folders = new ArrayList<>();
             ArrayList<File> musics = new ArrayList<>();
             for (File f : files) {
-                if (f.isDirectory()) folders.add(f);
-                else if (f.isFile()) {
-                    String path = f.getAbsolutePath();
-                    for (String rex : MusicExtensions) {
-                        if (Pattern.matches(rex, path)) {
-                            musics.add(f);
-                            break;
-                        }
-                    }
+                if (haveFolderOrMusic(f)) folders.add(f);
+                else if (isMusic(f)) {
+                    musics.add(f);
                 }
             }
             SortFileByName(folders);
@@ -79,5 +88,29 @@ public class Helper {
             return folders;
         }
         return new ArrayList<File>();
+    }
+
+    public static File getRemovableSD() {
+        String storagePath = "/storage";
+        File storage = new File(storagePath);
+        if (storage.exists()) {
+            File[] files = storage.listFiles();
+            for (File file : files) {
+                if (file.listFiles() != null) return file;
+            }
+        }
+        return null;
+    }
+
+    public static boolean isMusicFolder(File file) {
+        if (isMusic(file)) {
+            return true;
+        }
+        if (file != null && file.listFiles() != null) {
+            for (File f : file.listFiles()) {
+                if (isMusicFolder(f)) return true;
+            }
+        }
+        return false;
     }
 }

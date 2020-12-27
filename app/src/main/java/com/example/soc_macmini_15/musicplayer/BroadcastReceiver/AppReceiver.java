@@ -31,22 +31,33 @@ public class AppReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (mainActivity != null) {
             MediaPlayer mediaPlayer = mainActivity.getMediaPlayer();
+            String action = intent.getAction();
             if (intent.getAction().equals(Constant.ACL_CONNECTED)) {
-                if (!mediaPlayer.isPlaying()) mainActivity.playMusic();
+                if (!mediaPlayer.isPlaying()) mainActivity.playMusic(true);
             } else if (intent.getAction().equals(Constant.ACL_DISCONNECTED)) {
-                if (mediaPlayer.isPlaying()) mainActivity.pauseMusic();
+                if (mediaPlayer.isPlaying()) mainActivity.pauseMusic(true);
             } else if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
                 int state = intent.getIntExtra("state", -1);
                 switch (state) {
                     case 0:
-                        if (mediaPlayer.isPlaying()) mainActivity.pauseMusic();
+                        if (mediaPlayer.isPlaying()) mainActivity.pauseMusic(true);
                         break;
                     case 1:
-                        if (!mediaPlayer.isPlaying()) mainActivity.playMusic();
+                        if (!mediaPlayer.isPlaying()) mainActivity.playMusic(true);
                         break;
                     default:
                         Log.d("a", "I have no idea what the headset state is");
                 }
+            } else if (intent.getAction().equals(Constant.PREV)) {
+                mainActivity.playPrevSong();
+            } else if (intent.getAction().equals(Constant.PAUSE)) {
+                mainActivity.pauseMusic(true);
+            } else if (intent.getAction().equals(Constant.NEXT)) {
+                mainActivity.playNextSong();
+            } else if (intent.getAction().equals(Constant.PLAY)) {
+                mainActivity.playMusic(true);
+            }else if (intent.getAction().equals(Constant.CLOSE)) {
+                mainActivity.closeNotification();
             }
         }
     }

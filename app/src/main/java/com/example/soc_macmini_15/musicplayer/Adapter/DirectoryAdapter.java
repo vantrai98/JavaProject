@@ -13,15 +13,31 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class DirectoryAdapter extends BaseAdapter {
-    private ArrayList<File> files;
-
-    public DirectoryAdapter(){
-
-    }
-
-    public  DirectoryAdapter(ArrayList<File> files){
+    public void setFiles(ArrayList<File> files) {
         this.files = files;
     }
+
+    private ArrayList<File> files;
+
+    public void setRoot(File root) {
+        this.root = root;
+    }
+
+    public void setSdRoot(File sdRoot) {
+        this.sdRoot = sdRoot;
+    }
+
+    private File root;
+    private File sdRoot;
+
+    public DirectoryAdapter() {
+
+    }
+
+    public DirectoryAdapter(ArrayList<File> files) {
+        this.files = files;
+    }
+
     @Override
     public int getCount() {
         return files.size();
@@ -40,20 +56,25 @@ public class DirectoryAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         View fileView;
-        if(view==null){
-            fileView = View.inflate(viewGroup.getContext(), R.layout.directory_item,null);
-        }
-        else fileView = view;
+        if (view == null) {
+            fileView = View.inflate(viewGroup.getContext(), R.layout.directory_item, null);
+        } else fileView = view;
 
         File file = files.get(i);
-        if(file.isDirectory()){
-            ((ImageView)fileView.findViewById(R.id.im_directory_thumb)).setImageResource(R.drawable.folder_regular_blue_icon);
+        ImageView im_directory_thumb = (ImageView) fileView.findViewById(R.id.im_directory_thumb);
+        if (file.isDirectory()) {
+            im_directory_thumb.setImageResource(R.drawable.folder_regular_blue_icon);
+        } else {
+            im_directory_thumb.setImageResource(R.drawable.music_icon);
         }
-        else {
-            ((ImageView)fileView.findViewById(R.id.im_directory_thumb)).setImageResource(R.drawable.music_icon);
+        TextView tv_directory_item_name = (TextView) fileView.findViewById(R.id.tv_directory_item_name);
+        if (root != null && file.getName().compareTo(root.getName()) == 0) {
+            tv_directory_item_name.setText(R.string.phone_external_SD);
+        } else if (sdRoot != null && file.getName().compareTo(sdRoot.getName()) == 0) {
+            tv_directory_item_name.setText(R.string.removeble_external_SD);
+        } else {
+            tv_directory_item_name.setText(file.getName());
         }
-        ((TextView)fileView.findViewById(R.id.tv_directory_item_name)).setText(file.getName());
-
         return fileView;
     }
 }

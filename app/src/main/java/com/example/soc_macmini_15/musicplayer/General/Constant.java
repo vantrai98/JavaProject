@@ -15,8 +15,15 @@ public class Constant {
     public static final String ACL_DISCONNECTED = "android.bluetooth.device.action.ACL_DISCONNECTED";
     public static final String BLUETOOTH_CONNECTED = "BLUETOOTH_CONNECTED";
     public static final String BLUETOOTH_DISCONNECTED = "BLUETOOTH_DISCONNECTED";
-    public static final String LIST_MODE = "LIST_MODE";
+    public static final String LIST_TYPE = "LIST_TYPE";
     public static final int DEVICE = 1;
     public static final int FAVORITE = 2;
     public static final String DATABASE_NAME = "mydatabase";
+    public static final String NOTIFICATION_CONTTROLLER_ID = "NOTIFICATION_CONTTROLLER_ID";
+    public static final String PREV = "PREV";
+    public static final String PAUSE = "PAUSE";
+    public static final String NEXT = "NEXT";
+    public static final String PLAY = "PLAY";
+    public static final String CLOSE = "CLOSE";
+
 }

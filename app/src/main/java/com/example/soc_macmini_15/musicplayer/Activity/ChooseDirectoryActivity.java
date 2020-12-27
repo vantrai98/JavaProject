@@ -1,10 +1,7 @@
 package com.example.soc_macmini_15.musicplayer.Activity;
 
 import android.app.Activity;
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -13,16 +10,11 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.soc_macmini_15.musicplayer.Adapter.DirectoryAdapter;
@@ -33,11 +25,14 @@ import com.example.soc_macmini_15.musicplayer.R;
 import java.io.File;
 import java.util.ArrayList;
 
+import static com.example.soc_macmini_15.musicplayer.General.Helper.getRemovableSD;
+
 public class ChooseDirectoryActivity extends AppCompatActivity {
 
     private ListView lvDirectotyList;
     private Toolbar toolbar;
     private ActionBar actionBar;
+    DirectoryAdapter adapter;
 
     private File root;
     private File sdRoot;
@@ -59,6 +54,8 @@ public class ChooseDirectoryActivity extends AppCompatActivity {
         toolbar.setTitleTextColor(getResources().getColor(R.color.text_color));
         setSupportActionBar(toolbar);
 
+        adapter = new DirectoryAdapter();
+
         actionBar = getSupportActionBar();
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -79,8 +76,9 @@ public class ChooseDirectoryActivity extends AppCompatActivity {
         });
         fileList = new ArrayList<>();
         root = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
-        Uri uri = Uri.parse("/sdcard1");
-        sdRoot = new File(uri.getPath());
+        sdRoot = getRemovableSD();
+        adapter.setRoot(root);
+        adapter.setSdRoot(sdRoot);
         String _curFolderPath = getIntent().getExtras().getString(Constant.CURRENT_FOLDER_PATH);
         setCurrentFolder(new File(_curFolderPath));
     }
@@ -115,7 +113,7 @@ public class ChooseDirectoryActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void setCurrentFolder(File f) {
         curFolder = f;
-        if (curFolder.exists()) {
+        if (f != null && curFolder.exists()) {
             if (curFolder.getAbsolutePath().compareTo(root.getAbsolutePath()) == 0)
                 actionBar.setTitle(R.string.phone_external_SD);
             else if (curFolder.getAbsolutePath().compareTo(sdRoot.getAbsolutePath()) == 0)
@@ -124,9 +122,9 @@ public class ChooseDirectoryActivity extends AppCompatActivity {
             listDir();
         } else {
             fileList.clear();
-            if (root.exists())
+            if (root != null && root.exists())
                 fileList.add(root);
-            if (sdRoot.exists())
+            if (sdRoot != null && sdRoot.exists())
                 fileList.add(sdRoot);
             actionBar.setTitle(R.string.storage);
             setListView();
@@ -140,7 +138,7 @@ public class ChooseDirectoryActivity extends AppCompatActivity {
     }
 
     private void setListView() {
-        DirectoryAdapter adapter = new DirectoryAdapter(fileList);
+        adapter.setFiles(fileList);
         lvDirectotyList.setAdapter(adapter);
     }
 
