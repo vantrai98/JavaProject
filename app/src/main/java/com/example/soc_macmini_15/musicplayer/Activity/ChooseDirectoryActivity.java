@@ -113,10 +113,10 @@ public class ChooseDirectoryActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void setCurrentFolder(File f) {
         curFolder = f;
-        if (f != null && curFolder.exists()) {
-            if (curFolder.getAbsolutePath().compareTo(root.getAbsolutePath()) == 0)
+        if (curFolder != null && curFolder.exists()) {
+            if (root != null && curFolder.getAbsolutePath().compareTo(root.getAbsolutePath()) == 0)
                 actionBar.setTitle(R.string.phone_external_SD);
-            else if (curFolder.getAbsolutePath().compareTo(sdRoot.getAbsolutePath()) == 0)
+            else if (sdRoot != null && curFolder.getAbsolutePath().compareTo(sdRoot.getAbsolutePath()) == 0)
                 actionBar.setTitle(R.string.removeble_external_SD);
             else actionBar.setTitle(curFolder.getName());
             listDir();

@@ -9,10 +9,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.arch.persistence.room.Room;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -22,6 +24,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
@@ -63,6 +66,7 @@ import com.example.soc_macmini_15.musicplayer.General.Constant;
 import com.example.soc_macmini_15.musicplayer.General.Helper;
 import com.example.soc_macmini_15.musicplayer.Model.SongModel;
 import com.example.soc_macmini_15.musicplayer.R;
+import com.example.soc_macmini_15.musicplayer.Service.KilledAppService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -270,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void initCurFolder() {
+        String a = rootFolder.getAbsolutePath();
         String curFolderPath = pref.getString(Constant.CURRENT_FOLDER_PATH, rootFolder.getAbsolutePath());
         File file = new File(curFolderPath);
         if (file.exists())
@@ -864,7 +869,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void closeNotification() {
         pauseMusic(false);
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(this);
-        managerCompat.cancel(1);
+        managerCompat.cancel(Constant.NOTIFICATION_ID);
     }
 
     /**
@@ -892,7 +897,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Tạo trình điều khiển trên thanh thông báo
      */
-    private void createMediaPlayerController(boolean isPlay) {
+    private void createMediaPlayerController(final boolean isPlay) {
+        final Activity mainActivity = this;
         Intent prevIntent = new Intent();
         prevIntent.setAction(Constant.PREV);
         Intent pauseIntent = new Intent();
@@ -905,15 +911,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         nextIntent.setAction(Constant.NEXT);
         Intent closeIntent = new Intent();
         closeIntent.setAction(Constant.CLOSE);
-        PendingIntent prevPendingIntent = PendingIntent.getBroadcast(this, 1, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent pausePendingIntent = PendingIntent.getBroadcast(this, 1, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent nextPendingIntent = PendingIntent.getBroadcast(this, 1, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent closePendingIntent = PendingIntent.getBroadcast(this, 1, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent prevPendingIntent = PendingIntent.getBroadcast(mainActivity, 1, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pausePendingIntent = PendingIntent.getBroadcast(mainActivity, 1, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent nextPendingIntent = PendingIntent.getBroadcast(mainActivity, 1, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent closePendingIntent = PendingIntent.getBroadcast(mainActivity, 1, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = new NotificationCompat.Builder(context, Constant.NOTIFICATION_CONTTROLLER_ID)
-                // Show controls on lock screen even when user hides sensitive content.
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setSmallIcon(R.drawable.ic_music)
-                // Add media control buttons that invoke intents in your media service
                 .addAction(R.drawable.previous_icon, "Previous", prevPendingIntent)
                 .addAction(isPlay ? R.drawable.pause_icon : R.drawable.play_icon, isPlay ? "Pause" : "Play", pausePendingIntent)
                 .addAction(R.drawable.next_icon, "Next", nextPendingIntent)
@@ -924,8 +928,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setProgress(0, 100, true)
                 .setOngoing(true)
                 .build();
-        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(this);
-        managerCompat.notify(1, notification);
+        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(mainActivity);
+        managerCompat.notify(Constant.NOTIFICATION_ID, notification);
     }
 
     private void createNotificationChannel() {
@@ -983,5 +987,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mediaPlayer.release();
         handler.removeCallbacks(runnable);
         unRegisterMyReceiver();
+        closeNotification();
     }
 }

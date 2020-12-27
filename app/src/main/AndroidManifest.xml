@@ -50,6 +50,7 @@
                 <action android:name="android.intent.action.HEADSET_PLUG" />
             </intent-filter>
         </receiver>
+        <service android:name=".Service.KilledAppService" android:stopWithTask="true"></service>
 
     </application>
 </manifest>
