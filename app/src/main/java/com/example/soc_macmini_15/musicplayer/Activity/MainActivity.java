@@ -916,6 +916,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         PendingIntent nextPendingIntent = PendingIntent.getBroadcast(mainActivity, 1, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent closePendingIntent = PendingIntent.getBroadcast(mainActivity, 1, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = new NotificationCompat.Builder(context, Constant.NOTIFICATION_CONTTROLLER_ID)
+                .setPriority(Notification.PRIORITY_LOW)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setSmallIcon(R.drawable.ic_music)
                 .addAction(R.drawable.previous_icon, "Previous", prevPendingIntent)
@@ -934,8 +935,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(Constant.NOTIFICATION_CONTTROLLER_ID, Constant.NOTIFICATION_CONTTROLLER_ID, NotificationManager.IMPORTANCE_DEFAULT);
-            notificationChannel.setDescription(Constant.NOTIFICATION_CONTTROLLER_ID);
+            NotificationChannel notificationChannel = new NotificationChannel(Constant.NOTIFICATION_CONTTROLLER_ID, "Thanh điều khiển nhạc", NotificationManager.IMPORTANCE_LOW);
+            notificationChannel.setDescription("Thanh điều khiển nhạc");
+            notificationChannel.setSound(null,null);
+            notificationChannel.setShowBadge(false);
+            notificationChannel.enableVibration(false);
+            notificationChannel.enableLights(false);
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(notificationChannel);
         }
